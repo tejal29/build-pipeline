@@ -1,0 +1,45 @@
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Resource
+metadata:
+  name: prj-resources-git
+  namespace: default
+spec:
+  type: git
+  params:
+  - name: url
+    value: https://github.com/tejal29/microservices-demo
+  - name: revision
+    value: master
+---
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Resource
+metadata:
+  name: frontend
+  namespace: default
+spec:
+  type: image
+  params:
+  - name: url
+    value: gcr.io/pipeline-crd-demo/frontend
+---
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Resource
+metadata:
+  name: checkoutservice
+  namespace: default
+spec:
+  type: image
+  params:
+  - name: url
+    value: gcr.io/pipeline-crd-demo/checkoutservice
+---
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Resource
+metadata:
+  name: productcatalogservice
+  namespace: default
+spec:
+  type: image
+  params:
+  - name: url
+    value: gcr.io/pipeline-crd-demo/productcatalogservice
