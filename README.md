@@ -32,6 +32,7 @@ _See [examples](./examples) for some examples of how this is intended to work._
 
 ![Overview of the 5 CRDs](./crds.png)
 
+## CRDs
 The CRDs involved are:
 
 * [Task](#task)

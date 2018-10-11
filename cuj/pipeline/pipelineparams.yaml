@@ -4,10 +4,7 @@ metadata:
   name: pipelineparams-sample
   namespace: default
 spec:
-    clusters:
-        - name: 'testCluster'
-          type: 'gke'
-          endpoint: 'https://test.gke.corp.com'
-        - name: 'stagingCluster'
-          type: 'gke'
-          endpoint: 'https://staging.gke.corp.com'
+  clusters:
+    - name: 'testCluster'
+      type: 'gke'
+      endpoint: 'https://test.gke.corp.com'
