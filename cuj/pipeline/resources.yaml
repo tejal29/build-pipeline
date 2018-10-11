@@ -1,7 +1,7 @@
 apiVersion: pipeline.knative.dev/v1alpha1
 kind: Resource
 metadata:
-  name: prj-resources-git
+  name: hipster-source
   namespace: default
 spec:
   type: git

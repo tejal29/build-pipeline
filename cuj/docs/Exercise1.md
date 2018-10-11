@@ -10,10 +10,12 @@ We will be concentrating on 3 of the 10 microservices in this exercise.
 3. Frontend Service
 
 
-Now, take a look the [pipeline]((./../pipeline/hipster-pipeline.yaml) which references above 3 services.
+Now, take a look the [pipeline](./../pipeline/hipster-pipeline.yaml) which references above 3 services.
 
-Describe in words, what this pipeline does. 
-
+# Overview of files
+1. [Tasks](./../pipeline/build-push-task.yaml) Contains the definitions of tasks used in the pipeline.
+2. [PipelineParams](./../pipeline/pipelineparams.yaml) Defines pipeline parameters.
+3. [Resources](./../pipeline/resources.yaml) Defines resources used in the pipeline.
 
 
 
