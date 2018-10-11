@@ -1,0 +1,19 @@
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Task
+metadata:
+  name: go-test
+  namespace: default
+spec:
+    inputs:
+        resources:
+            - name: workspace
+              type: git
+        params:
+            - name: package
+              value: string
+    buildSpec:
+          steps:
+          - name: run-test
+            image: gcr.io/google_appengine/golang
+            args:
+            - ${inputs.params.package}
