@@ -27,7 +27,6 @@ import (
 	buildinformers "github.com/knative/build/pkg/client/informers/externalversions/build/v1alpha1"
 	buildlisters "github.com/knative/build/pkg/client/listers/build/v1alpha1"
 	"github.com/knative/pkg/controller"
-	"github.com/knative/pkg/logging"
 	"github.com/knative/pkg/tracker"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -120,13 +119,12 @@ func (c *Reconciler) Reconcile(ctx context.Context, key string) error {
 		c.Logger.Errorf("invalid resource key: %s", key)
 		return nil
 	}
-	logger := logging.FromContext(ctx)
 
 	// Get the Task Run resource with this namespace/name
 	original, err := c.taskRunLister.TaskRuns(namespace).Get(name)
 	if errors.IsNotFound(err) {
 		// The resource no longer exists, in which case we stop processing.
-		logger.Errorf("task run %q in work queue no longer exists", key)
+		c.Logger.Errorf("task run %q in work queue no longer exists", key)
 		return nil
 	} else if err != nil {
 		return err
@@ -143,7 +141,7 @@ func (c *Reconciler) Reconcile(ctx context.Context, key string) error {
 		Name:       tr.Name,
 	}
 	if err := c.tracker.Track(buildRef, tr); err != nil {
-		logger.Errorf("failed to create tracker for build %s for taskrun %s: %v", buildRef, tr.Name, err)
+		c.Logger.Errorf("failed to create tracker for build %s for taskrun %s: %v", buildRef, tr.Name, err)
 		return err
 	}
 
@@ -156,15 +154,13 @@ func (c *Reconciler) Reconcile(ctx context.Context, key string) error {
 		// cache may be stale and we don't want to overwrite a prior update
 		// to status with this stale state.
 	} else if _, err := c.updateStatus(tr); err != nil {
-		logger.Warn("Failed to update taskRun status", zap.Error(err))
+		c.Logger.Warn("Failed to update taskRun status", zap.Error(err))
 		return err
 	}
 	return err
 }
 
 func (c *Reconciler) reconcile(ctx context.Context, tr *v1alpha1.TaskRun) error {
-	logger := logging.FromContext(ctx)
-
 	haveBuild := false
 	// get build the same as the taskrun, this is the value we use for 1:1 mapping and retrieval
 	b, err := c.getBuild(tr.Namespace, tr.Name)
@@ -186,7 +182,7 @@ func (c *Reconciler) reconcile(ctx context.Context, tr *v1alpha1.TaskRun) error 
 
 	// taskrun has finished (as child build has finished and status is synced)
 	if len(tr.Status.Conditions) > 0 && tr.Status.Conditions[0].Status != corev1.ConditionUnknown {
-		logger.Infof("finished %s", tr.Name)
+		c.Logger.Infof("finished %s", tr.Name)
 		return nil
 	}
 
@@ -197,8 +193,7 @@ func (c *Reconciler) reconcile(ctx context.Context, tr *v1alpha1.TaskRun) error 
 			return err
 		}
 
-		// make build obj from task buildspec
-		logger.Infof("make build: %s", tr.Name)
+		c.Logger.Infof("Creating Build %s for TaskRun %s", tr.Name, tr.Name)
 		if b, err = c.makeBuild(t, tr); err != nil {
 			return fmt.Errorf("failed to create a build for taskrun: %v", err)
 		}
@@ -206,9 +201,9 @@ func (c *Reconciler) reconcile(ctx context.Context, tr *v1alpha1.TaskRun) error 
 
 	// sync build status with taskrun status
 	if len(b.Status.Conditions) > 0 {
-		logger.Infof("syncing taskrun conditions with build conditions %s", b.Status.Conditions[0])
+		c.Logger.Infof("Syncing TaskRun %s conditions with Build %s conditions %s", tr.Name, b.Name, b.Status.Conditions[0])
 	} else {
-		logger.Infof("syncing taskrun conditions with build conditions []")
+		c.Logger.Infof("Build %s has no conditions so nothing to update for TaskRun %s", b.Name, tr.Name)
 	}
 	tr.Status.Conditions = b.Status.Conditions
 	return nil
@@ -221,9 +216,7 @@ func (c *Reconciler) updateStatus(taskrun *v1alpha1.TaskRun) (*v1alpha1.TaskRun,
 	}
 	if !reflect.DeepEqual(taskrun.Status, newtaskrun.Status) {
 		newtaskrun.Status = taskrun.Status
-		// TODO: for CRD there's no updatestatus, so use normal update
 		return c.PipelineClientSet.PipelineV1alpha1().TaskRuns(taskrun.Namespace).Update(newtaskrun)
-		//	return configClient.UpdateStatus(newtaskrun)
 	}
 	return newtaskrun, nil
 }
