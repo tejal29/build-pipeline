@@ -45,7 +45,7 @@ function teardown() {
 
 # Called by `fail_test` (provided by `e2e-tests.sh`) to dump info on test failure
 function dump_extra_cluster_state() {
-  for crd in pipelines pipelineruns tasks taskruns resources pipelineparams
+  for crd in pipelines pipelineruns tasks taskruns resources pipelineparams builds
   do
     echo ">>> $crd:"
     kubectl get $crd -o yaml --all-namespaces
@@ -74,9 +74,6 @@ set +o xtrace
 
 # Wait for pods to be running in the namespaces we are deploying to
 wait_until_pods_running knative-build-pipeline || fail_test "Pipeline CRD did not come up"
-
-# Run the smoke tests for the examples dir to make sure they are valid
-./examples/smoke-test.sh || fail_test
 
 # Run the integration tests
 go_test_e2e -timeout=20m ./test || fail_test

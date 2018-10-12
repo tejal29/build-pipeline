@@ -50,7 +50,13 @@ function integration_tests() {
   header "Running integration tests"
   local options=""
   (( EMIT_METRICS )) && options="--emit-metrics"
-   ./test/e2e-tests.sh ${options}
+  ./test/e2e-tests.sh ${options}
+
+  # Run the smoke tests for the examples dir to make sure they are valid
+  # Run these _after_ the integration tests b/c they don't quite work all the way
+  # and they cause a lot of noise in the logs, making it harder to debug integration
+  # test failures.
+  ./examples/smoke-test.sh || fail_test
 }
 
 main $@
