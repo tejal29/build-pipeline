@@ -35,6 +35,7 @@ import (
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
+	clientv1 "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/tools/cache"
 
 	informers "github.com/knative/build-pipeline/pkg/client/informers/externalversions/pipeline/v1alpha1"
@@ -78,6 +79,7 @@ func NewController(
 	taskRunInformer informers.TaskRunInformer,
 	taskInformer informers.TaskInformer,
 	buildInformer buildinformers.BuildInformer,
+	podInformer clientv1.PodInformer,
 
 ) *controller.Impl {
 
@@ -105,6 +107,17 @@ func NewController(
 	c.tracker = tracker.New(impl.EnqueueKey, 30*time.Minute)
 	buildInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		UpdateFunc: controller.PassNew(c.tracker.OnChanged),
+	})
+	podInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			fmt.Printf("add: %s \n", obj)
+		},
+		DeleteFunc: func(obj interface{}) {
+			fmt.Printf("delete: %s \n", obj)
+		},
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			fmt.Printf("old: %s, new: %s \n", oldObj, newObj)
+		},
 	})
 	return impl
 }

@@ -115,6 +115,8 @@ func main() {
 
 	pipelineInformer := pipelineInformerFactory.Pipeline().V1alpha1().Pipelines()
 	pipelineRunInformer := pipelineInformerFactory.Pipeline().V1alpha1().PipelineRuns()
+
+	podInformer := kubeInformerFactory.Core().V1().Pods()
 	// Build all of our controllers, with the clients constructed above.
 	controllers := []*controller.Impl{
 		// Pipeline Controllers
@@ -122,6 +124,7 @@ func main() {
 			taskRunInformer,
 			taskInformer,
 			buildInformer,
+			podInformer,
 		),
 		pipelinerun.NewController(opt,
 			pipelineRunInformer,
