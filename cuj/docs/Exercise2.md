@@ -2,13 +2,14 @@
 In this exercise, we will define a task which executes `go test` to test your go code. 
 This task will run `go test` command for your go project.
 
-Look at the sample [build-push task](./../build-push-task.yaml). 
 You can use the go runtime image `gcr.io/google_appengine/golang`
-e.g go test command
-To run all tests in the kritis project, 
+
+To run all tests inside inside this container image for the [golang/archive](https://golang.org/pkg/archive/) package, 
 
 ```shell
-go test github.com/grafeas/kritis/...
+docker run -i gcr.io/google_appengine/golang go test archive/...
+ok  	archive/tar	0.029s
+ok  	archive/zip	7.997s
 ```
 
 

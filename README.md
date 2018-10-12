@@ -1,4 +1,4 @@
-# Pipeline CRD
+# Pipeline CRDs
 
 [![Prow integration test results](https://prow.knative.dev/badge.svg?jobs=pull-knative-build-pipeline-integration-tests)](https://prow.knative.dev/?job=pull-knative-build-pipeline-integration-tests)
 [![Prow unit test results](https://prow.knative.dev/badge.svg?jobs=pull-knative-build-pipeline-unit-tests)](https://prow.knative.dev/?job=pull-knative-build-pipeline-unit-tests)
@@ -17,7 +17,7 @@ you will be able to use this implementation to deploy and execute a simple Pipel
 
 ## Features
 
-Features the Pipeline CRD will support include:
+Features the Pipeline CRDs will support include:
 
 * Conditional, parallel and distributed execution
 * Interaction with CI/CD resources such as source code, artifacts, resutls, deployments and clusters
