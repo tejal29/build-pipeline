@@ -1,0 +1,51 @@
+apiVersion: pipeline.knative.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: microservices-pipeline
+  namespace: default
+spec:
+    tasks:
+      - name: build-checkoutservice
+        taskRef:
+          name: build-push
+        inputSourceBindings:
+          - name: workspace
+            resourceRef:
+              name:  hipster-git-source
+        outputSourceBindings:
+          - name: builtImage
+            resourceRef:
+              name: checkoutservice-image
+        params:
+          - name: pathToDockerfile
+            value: src/productcatalogservice/Dockerfile
+      - name: build-frontend
+        taskRef:
+          name: build-push
+        inputSourceBindings:
+          - name: workspace
+            resourceRef:
+              name:  hipster-git-source
+        outputSourceBindings:
+          - name: builtImage
+            resourceRef:
+              name: frontend-image
+        params:
+          - name: pathToDockerfile
+            value: src/frontend/Dockerfile
+      - name: deploy-all
+        taskRef:
+          name: deploy-with-kubectl
+        inputSourceBindings:
+          - name: workspace
+            resourceRef:
+              name:  hipster-git-source
+            fromPrevTask:
+              - build-checkoutservice
+              - build-frontend
+          params:
+              - name: pathToFiles
+                value: kubernetes-manifests
+          clusterBindings:
+              - inputName: targetCluster
+                key: testCluster

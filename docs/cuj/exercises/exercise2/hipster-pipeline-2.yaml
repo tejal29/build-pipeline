@@ -5,45 +5,31 @@ metadata:
   namespace: default
 spec:
     tasks:
-      - name: build-productcatalog
-        taskRef:
-          name: build-push
-        inputSourceBindings:
-          - name: workspace
-            resourceRef:
-              name: hipster-source
-        outputSourceBindings:
-          - name: builtImage
-            resourceRef:
-              name: productcatalog
-        params:
-          - name: pathToDockerfile
-            value: src/productcatalogservice/Dockerfile
       - name: build-checkoutservice
         taskRef:
           name: build-push
         inputSourceBindings:
           - name: workspace
             resourceRef:
-              name: hipster-source
+              name:  hipster-git-source
         outputSourceBindings:
           - name: builtImage
             resourceRef:
-              name: checkoutservice
+              name: checkoutservice-image
         params:
           - name: pathToDockerfile
-            value: src/checkoutservice/Dockerfile
+            value: src/productcatalogservice/Dockerfile
       - name: build-frontend
         taskRef:
           name: build-push
         inputSourceBindings:
           - name: workspace
             resourceRef:
-              name: hipster-source
+              name:  hipster-git-source
         outputSourceBindings:
           - name: builtImage
             resourceRef:
-              name: frontend
+              name: frontend-image
         params:
           - name: pathToDockerfile
             value: src/frontend/Dockerfile
@@ -53,14 +39,13 @@ spec:
         inputSourceBindings:
           - name: workspace
             resourceRef:
-              name: hipster-source
-            passedConstraints:
-              - build-checkoutservice
-              - build-productcatalog
-              - build-frontend
+              name:  hipster-git-source
           params:
               - name: pathToFiles
                 value: kubernetes-manifests
           clusterBindings:
               - inputName: targetCluster
                 key: testCluster
+        previousTasks:
+          - build-checkoutservice
+          - build-fronte
